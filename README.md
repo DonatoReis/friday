@@ -6,6 +6,8 @@ Este projeto está em fase de testes. Ainda existem erros conhecidos que precisa
 
 Bem-vindo ao **Friday Train Application**! Este projeto é uma interface web interativa desenvolvida com **Streamlit** que permite aos usuários interagirem com um modelo GPT-2 customizado para diversas funcionalidades, incluindo chat, previsão de próxima palavra, análise de sentimentos e quantização de modelos.
 
+> **Objetivo Principal**: Este projeto tem como objetivo principal treinar IA utilizando modelos **GPT-2** e modelos personalizados.
+
 ## 📖 Índice
 - [📝 Descrição](#-descrição)
 - [✨ Funcionalidades](#-funcionalidades)
