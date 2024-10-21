@@ -1,0 +1,26 @@
+# requirements.txt
+
+# -------------------------------------------------------------------
+# Bibliotecas Principais
+# -------------------------------------------------------------------
+streamlit==1.39.0                 # Interface web interativa
+torch==2.5.0+cu124                # Computação tensorial e aprendizado profundo (com suporte CUDA 12.4)
+transformers==4.45.2              # Modelos de linguagem pré-treinados
+datasets==3.0.1                   # Manipulação e carregamento de datasets
+pytorch_lightning==2.4.0          # Estrutura de alto nível para PyTorch
+optuna==4.0.0                     # Otimização de hiperparâmetros
+huggingface_hub==0.25.2           # Interface com HuggingFace Hub
+PyYAML==6.0.2                     # Manipulação de arquivos YAML
+
+# -------------------------------------------------------------------
+# Dependências Adicionais
+# -------------------------------------------------------------------
+sentencepiece==0.2.0              # Tokenização para alguns modelos do HuggingFace
+# dotenv==0.21.1                  # Gerenciamento de variáveis de ambiente (não instalado)
+
+# -------------------------------------------------------------------
+# Utilitários e Ferramentas de Desenvolvimento
+# -------------------------------------------------------------------
+pytest==8.3.3                     # Framework de testes
+flake8==7.1.1                     # Verificação de estilo de código
+black==24.10.0                    # Formatação automática de código
