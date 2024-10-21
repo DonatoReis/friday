@@ -1,3 +1,7 @@
+# ⚠️ Em Fase de Testes
+
+Este projeto está em fase de testes. Ainda existem erros conhecidos que precisam ser corrigidos. Caso encontre algum problema, por favor, reporte-o.
+
 # 🤖 Friday Train Application
 
 Bem-vindo ao **Friday Train Application**! Este projeto é uma interface web interativa desenvolvida com **Streamlit** que permite aos usuários interagirem com um modelo GPT-2 customizado para diversas funcionalidades, incluindo chat, previsão de próxima palavra, análise de sentimentos e quantização de modelos.
