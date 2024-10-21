@@ -1,6 +1,6 @@
-# 🤖 ChatGPT Streamlit Application
+# 🤖 Friday Train Application
 
-Bem-vindo ao ChatGPT Streamlit Application! Este projeto é uma interface web interativa desenvolvida com Streamlit que permite aos usuários interagirem com um modelo GPT-2 customizado para diversas funcionalidades, incluindo chat, previsão de próxima palavra, análise de sentimentos e quantização de modelos.
+Bem-vindo ao Friday Train Application! Este projeto é uma interface web interativa desenvolvida com Streamlit que permite aos usuários interagirem com um modelo GPT-2 customizado para diversas funcionalidades, incluindo chat, previsão de próxima palavra, análise de sentimentos e quantização de modelos.
 
 ## 📖 Índice
 
@@ -52,5 +52,5 @@ Siga os passos abaixo para configurar o ambiente e instalar as dependências nec
 ### 1. Clone o Repositório
 
 ```bash
-git clone https://github.com/seu-usuario/chatgpt-streamlit-app.git
-cd chatgpt-streamlit-app
+git clone https://github.com/DonatoReis/friday.git
+cd friday
