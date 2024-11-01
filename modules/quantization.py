@@ -9,23 +9,23 @@ from typing import Optional, Dict
 from .utils import load_config, load_model_and_tokenizer
 from dotenv import load_dotenv
 
-# Carregar variáveis de ambiente do arquivo .env, se existir
+# Load environment variables from .env file, if it exists
 load_dotenv()
 
-# Carregar configurações do config.yaml
+# Load configuration from config.yaml
 config = load_config('config/config.yaml')
 
-# Função para carregar e armazenar o modelo e tokenizador usando cache
+# Function to load and cache the model and tokenizer
 @st.cache_resource(show_spinner=False)
 def get_model_and_tokenizer(model_path: str) -> Optional[tuple]:
     """
-    Carrega o modelo e o tokenizador a partir do caminho especificado.
+    Loads the model and tokenizer from the specified path.
     
     Args:
-        model_path (str): Caminho para o diretório do modelo treinado.
+        model_path (str): Path to the directory of the trained model.
     
     Returns:
-        Optional[tuple]: Modelo e tokenizador carregados ou None em caso de falha.
+        Optional[tuple]: Loaded model and tokenizer or None if loading fails.
     """
     return load_model_and_tokenizer(model_path)
 
@@ -37,28 +37,28 @@ def quantize_model(
     calibration_data: Optional[str] = None
 ) -> bool:
     """
-    Aplica quantização ao modelo GPT-2 treinado.
+    Applies quantization to the trained GPT-2 model.
     
     Args:
-        model_path (str): Caminho para o diretório do modelo treinado.
-        quantized_output_dir (str): Caminho para salvar o modelo quantizado.
-        dtype (str, optional): Tipo de dado para quantização. Defaults to "torch.qint8".
-        strategy (str, optional): Estratégia de quantização ("dynamic", "static", "hybrid"). Defaults to "dynamic".
-        calibration_data (Optional[str], optional): Caminho para os dados de calibração se a estratégia for estática. Defaults to None.
+        model_path (str): Path to the directory of the trained model.
+        quantized_output_dir (str): Path to save the quantized model.
+        dtype (str, optional): Data type for quantization. Defaults to "torch.qint8".
+        strategy (str, optional): Quantization strategy ("dynamic", "static", "hybrid"). Defaults to "dynamic".
+        calibration_data (Optional[str], optional): Path to calibration data if the strategy is static. Defaults to None.
     
     Returns:
-        bool: True se a quantização foi bem-sucedida, False caso contrário.
+        bool: True if quantization is successful, False otherwise.
     """
     try:
         model, tokenizer = get_model_and_tokenizer(model_path)
         if model is None or tokenizer is None:
-            st.error("Modelo ou tokenizador não carregado corretamente.")
+            st.error("Model or tokenizer not loaded correctly.")
             return False
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
 
-        st.info(f"Iniciando a quantização do modelo com dtype={dtype} e strategy={strategy}.")
+        st.info(f"Starting model quantization with dtype={dtype} and strategy={strategy}.")
 
         if strategy == "dynamic":
             quantized_model = torch.quantization.quantize_dynamic(
@@ -66,10 +66,10 @@ def quantize_model(
             )
         elif strategy == "static":
             if calibration_data is None:
-                st.error("Dados de calibração são necessários para a quantização estática.")
+                st.error("Calibration data is required for static quantization.")
                 return False
             
-            # Carregar dados de calibração
+            # Load calibration data
             from datasets import load_dataset
             dataset = load_dataset('json', data_files={'calibration': calibration_data}, split='calibration')
             
@@ -80,98 +80,98 @@ def quantize_model(
                         inputs = tokenizer.encode(example['text'], return_tensors='pt', max_length=max_length, truncation=True).to(device)
                         model(inputs)
             
-            # Preparar o modelo para quantização estática
+            # Prepare the model for static quantization
             model.eval()
             model.qconfig = torch.quantization.get_default_qconfig('fbgemm')
             torch.quantization.prepare(model, inplace=True)
             calibrate(model, dataset, tokenizer, device)
             quantized_model = torch.quantization.convert(model, inplace=True)
         elif strategy == "hybrid":
-            # Implementação de quantização híbrida
-            st.info("Estratégia de quantização híbrida ainda não implementada.")
+            # Hybrid quantization implementation
+            st.info("Hybrid quantization strategy is not yet implemented.")
             return False
         else:
-            st.error(f"Estratégia de quantização '{strategy}' não suportada.")
+            st.error(f"Quantization strategy '{strategy}' is not supported.")
             return False
 
-        # Criar o diretório de saída se não existir
+        # Create output directory if it does not exist
         os.makedirs(quantized_output_dir, exist_ok=True)
 
-        # Salvar o modelo quantizado
+        # Save the quantized model
         quantized_model.save_pretrained(quantized_output_dir)
         tokenizer.save_pretrained(quantized_output_dir)
 
-        # Verificar se todos os arquivos foram salvos
+        # Verify if all files were saved
         required_files = ['tokenizer.json', 'config.json', 'vocab.json', 'merges.txt']
         missing_files = [f for f in required_files if not os.path.exists(os.path.join(quantized_output_dir, f))]
         if missing_files:
-            st.error(f"O modelo quantizado no diretório '{quantized_output_dir}' está incompleto. Arquivos faltantes: {missing_files}")
+            st.error(f"The quantized model in directory '{quantized_output_dir}' is incomplete. Missing files: {missing_files}")
             return False
         else:
-            st.success(f"Quantização concluída com sucesso e modelo salvo em '{quantized_output_dir}'.")
+            st.success(f"Quantization completed successfully and model saved in '{quantized_output_dir}'.")
             return True
 
     except Exception as e:
-        st.error(f"Ocorreu um erro durante a quantização: {e}")
+        st.error(f"An error occurred during quantization: {e}")
         return False
 
 def run_quantization_interface():
     """
-    Executa a interface de quantização utilizando Streamlit.
+    Runs the quantization interface using Streamlit.
     """
-    st.header("⚙️ Quantização do Modelo GPT-2")
+    st.header("⚙️ GPT-2 Model Quantization")
     
-    # Parâmetros com tooltips
+    # Parameters with tooltips
     col1, col2 = st.columns(2)
     with col1:
         dtype = st.selectbox(
-            "Tipo de Dado para Quantização",
+            "Data Type for Quantization",
             options=["torch.qint8", "torch.float16"],
             index=["torch.qint8", "torch.float16"].index(config['quantization']['dtype']),
-            help="Escolha o tipo de dado para a quantização do modelo."
+            help="Choose the data type for model quantization."
         )
     with col2:
         strategy = st.selectbox(
-            "Estratégia de Quantização",
+            "Quantization Strategy",
             options=["dynamic", "static", "hybrid"],
             index=["dynamic", "static", "hybrid"].index(config['quantization']['strategy']),
-            help="Escolha a estratégia de quantização a ser utilizada."
+            help="Choose the quantization strategy to be used."
         )
     
-    # Upload de dados de calibração se a estratégia for estática
+    # Upload calibration data if the strategy is static
     calibration_file = None
     if strategy == "static":
         calibration_file = st.file_uploader(
-            "Escolha o arquivo de calibração (.jsonl)",
+            "Select calibration file (.jsonl)",
             type=["jsonl"],
-            help="Faça upload de um arquivo .jsonl contendo exemplos para calibração."
+            help="Upload a .jsonl file containing calibration examples."
         )
     
-    # Diretório de saída para o modelo quantizado
+    # Output directory for the quantized model
     quantized_output_dir = st.text_input(
-        "Diretório para salvar o modelo quantizado",
+        "Directory to save the quantized model",
         value=os.path.join(config['training']['output_dir'], "quantized"),
-        help="Insira o caminho para salvar o modelo quantizado."
+        help="Enter the path to save the quantized model."
     )
     
-    # Botão para iniciar a quantização
-    if st.button("Iniciar Quantização"):
+    # Button to start quantization
+    if st.button("Start Quantization"):
         model_path = config['training']['output_dir']
         
-        # Validar presença do modelo
+        # Validate model presence
         required_files = ['tokenizer.json', 'config.json', 'vocab.json', 'merges.txt']
         if not all(os.path.exists(os.path.join(model_path, f)) for f in required_files):
-            st.error(f"O modelo no diretório '{model_path}' está incompleto ou não foi treinado.")
+            st.error(f"The model in directory '{model_path}' is incomplete or not trained.")
             return
         
-        # Salvar o arquivo de calibração temporariamente se necessário
+        # Save the calibration file temporarily if needed
         calibration_path = None
         if strategy == "static" and calibration_file is not None:
             with open("calibration_data.jsonl", "wb") as f:
                 f.write(calibration_file.getbuffer())
             calibration_path = "calibration_data.jsonl"
         
-        # Iniciar quantização com tratamento de erros
+        # Start quantization with error handling
         success = quantize_model(
             model_path=model_path,
             quantized_output_dir=quantized_output_dir,
@@ -180,20 +180,21 @@ def run_quantization_interface():
             calibration_data=calibration_path
         )
         
-        # Remover arquivo temporário de calibração
+        # Remove temporary calibration file
         if calibration_path and os.path.exists(calibration_path):
             os.remove(calibration_path)
         
         if success and config['quantization']['enabled']:
-            st.info("Quantização e salvamento do modelo concluídos com sucesso.")
+            st.info("Quantization and model saving completed successfully.")
         elif not success:
-            st.error("Falha na quantização do modelo. Verifique os logs para mais detalhes.")
+            st.error("Failed to quantize the model. Check logs for more details.")
     
+
 def run_quantization_module():
     """
-    Executa a interface de quantização.
+    Runs the quantization module interface.
     """
     run_quantization_interface()
 
 if __name__ == "__main__":
-    st.warning("Este módulo não deve ser executado diretamente.")
+    st.warning("This module should not be run directly.")
