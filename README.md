@@ -1,46 +1,46 @@
-# ⚠️ Em Fase de Testes
+# ⚠️ In Testing Phase
 
-Este projeto está em fase de testes. Ainda existem erros conhecidos que precisam ser corrigidos. Caso encontre algum problema, por favor, reporte-o.
+This project is currently in a testing phase. There are still known errors that need to be fixed. If you find any issues, please report them.
 
 # 🤖 Friday Train Application
 
-Bem-vindo ao **Friday Train Application**! Este projeto é uma interface web interativa desenvolvida com **Streamlit** que permite aos usuários interagirem com um modelo GPT-2 customizado para diversas funcionalidades, incluindo chat, previsão de próxima palavra, análise de sentimentos e quantização de modelos.
+Welcome to the **Friday Train Application**! This project is an interactive web interface developed with **Streamlit** that allows users to interact with a custom GPT-2 model for various functionalities, including chat, next word prediction, sentiment analysis, and model quantization.
 
-> **Objetivo Principal**: Este projeto tem como objetivo principal treinar IA utilizando modelos **GPT-2** e modelos personalizados.
+> **Main Goal**: The primary goal of this project is to train AI using **GPT-2** models and custom models.
 
-## 📖 Índice
-- [📝 Descrição](#-descrição)
-- [✨ Funcionalidades](#-funcionalidades)
-- [💻 Tecnologias Utilizadas](#-tecnologias-utilizadas)
-- [🚀 Instalação](#-instalação)
-- [🔧 Configuração](#-configuração)
-- [🛠️ Uso](#%EF%B8%8F-uso)
-- [🤝 Contribuição](#-contribuição)
-- [📜 Licença](#-licença)
-- [📫 Contato](#-contato)
-- [🙏 Agradecimentos](#-agradecimentos)
+## 📖 Table of Contents
+- [📝 Description](#-description)
+- [✨ Features](#-features)
+- [💻 Technologies Used](#-technologies-used)
+- [🚀 Installation](#-installation)
+- [🔧 Configuration](#-configuration)
+- [🛠️ Usage](#%EF%B8%8F-usage)
+- [🤝 Contribution](#-contribution)
+- [📜 License](#-license)
+- [📫 Contact](#-contact)
+- [🙏 Acknowledgements](#-acknowledgements)
 
-## 📝 Descrição
+## 📝 Description
 
-Este projeto fornece uma interface amigável para interagir com modelos de linguagem **GPT-2**, permitindo que os usuários:
+This project provides a user-friendly interface for interacting with **GPT-2** language models, allowing users to:
 
-- **Chatbot**: Conversar com o modelo de forma interativa.
-- **Previsão de Próxima Palavra**: Prever a próxima palavra em um texto fornecido.
-- **Análise de Sentimentos**: Analisar o sentimento de textos inseridos.
-- **Quantização de Modelo**: Reduzir o tamanho do modelo para implantação eficiente.
+- **Chatbot**: Chat interactively with the model.
+- **Next Word Prediction**: Predict the next word in a given text.
+- **Sentiment Analysis**: Analyze the sentiment of provided texts.
+- **Model Quantization**: Reduce the size of the model for efficient deployment.
 
-Além disso, o projeto suporta treinamento contínuo, ajuste de hiperparâmetros com **Optuna** e coleta de feedback para aprimoramento contínuo do modelo.
+Additionally, the project supports continuous training, hyperparameter tuning with **Optuna**, and feedback collection for ongoing model improvement.
 
-## ✨ Funcionalidades
+## ✨ Features
 
-- **Interface Web Interativa**: Desenvolvida com Streamlit para facilitar a interação.
-- **Treinamento Personalizado**: Fine-tuning do modelo GPT-2 com datasets personalizados.
-- **Otimização de Hiperparâmetros**: Utilização do Optuna para encontrar as melhores configurações.
-- **Análise de Sentimentos**: Integração com pipelines de análise de sentimentos.
-- **Quantização de Modelo**: Redução do tamanho do modelo para melhorar a performance e reduzir custos.
-- **Feedback do Usuário**: Coleta e análise de feedback para aprendizado contínuo.
+- **Interactive Web Interface**: Built with Streamlit for easy interaction.
+- **Custom Training**: Fine-tune the GPT-2 model with custom datasets.
+- **Hyperparameter Optimization**: Use Optuna to find the best settings.
+- **Sentiment Analysis**: Integration with sentiment analysis pipelines.
+- **Model Quantization**: Reduce model size to improve performance and lower costs.
+- **User Feedback**: Collect and analyze feedback for continuous learning.
 
-## 💻 Tecnologias Utilizadas
+## 💻 Technologies Used
 
 - [Python](https://www.python.org/)
 - [Streamlit](https://streamlit.io/)
@@ -50,53 +50,53 @@ Além disso, o projeto suporta treinamento contínuo, ajuste de hiperparâmetros
 - [PyYAML](https://pyyaml.org/)
 - [Dotenv](https://github.com/theskumar/python-dotenv)
 
-## 🚀 Instalação
+## 🚀 Installation
 
-Siga os passos abaixo para configurar o ambiente e instalar as dependências necessárias.
+Follow the steps below to set up the environment and install the necessary dependencies.
 
-### 1. Clone o Repositório
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/DonatoReis/friday.git
 cd friday
 ```
 
-### 2. Crie um Ambiente Virtual
+### 2. Create a Virtual Environment
 
-É recomendado utilizar um ambiente virtual para isolar as dependências do projeto.
+It is recommended to use a virtual environment to isolate project dependencies.
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # No Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-### 3. Instale as Dependências
+### 3. Install Dependencies
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 🔧 Configuração
+## 🔧 Configuration
 
-### 1. Configuração de Variáveis de Ambiente
+### 1. Environment Variables Setup
 
-Crie um arquivo `.env` na raiz do projeto para armazenar variáveis sensíveis, como tokens de autenticação do **Hugging Face**.
+Create a `.env` file in the project's root to store sensitive variables like the **Hugging Face** authentication tokens.
 
 ```bash
 touch .env
 ```
 
-Abra o arquivo `.env` e adicione o seguinte:
+Open the `.env` file and add the following:
 
 ```env
-HUGGINGFACE_TOKEN=seu_token_aqui
+HUGGINGFACE_TOKEN=your_token_here
 ```
 
-> **Nota**: Substitua `seu_token_aqui` pelo seu token de acesso do **Hugging Face**.
+> **Note**: Replace `your_token_here` with your **Hugging Face** access token.
 
-### 2. Arquivo de Configuração
+### 2. Configuration File
 
-Edite o arquivo `config/config.yaml` para ajustar as configurações conforme suas necessidades. Este arquivo controla parâmetros como caminhos de modelos, hiperparâmetros de treinamento, opções de quantização, entre outros.
+Edit the `config/config.yaml` file to adjust the settings as needed. This file controls parameters such as model paths, training hyperparameters, quantization options, and more.
 
 ```yaml
 general:
@@ -109,7 +109,7 @@ training:
   gradient_accumulation_steps: 1
 
 optimization:
-  fp16_option: "auto"  # Opções: "auto", "fp16", "fp32"
+  fp16_option: "auto"  # Options: "auto", "fp16", "fp32"
 
 chatbot:
   temperature: 1.0
@@ -133,49 +133,49 @@ huggingface:
 
 quantization:
   enabled: True
-  dtype: "torch.qint8"  # Opções: "torch.qint8", "torch.float16"
-  strategy: "dynamic"   # Opções: "dynamic", "static", "hybrid"
+  dtype: "torch.qint8"  # Options: "torch.qint8", "torch.float16"
+  strategy: "dynamic"   # Options: "dynamic", "static", "hybrid"
   feedback_file: "feedback_data.jsonl"
 
 other:
-  # Adicione outras configurações conforme necessário
+  # Add other settings as needed
 ```
 
-## 🛠️ Uso
+## 🛠️ Usage
 
-Após a instalação e configuração, você pode iniciar a aplicação **Streamlit** executando o seguinte comando:
+After installation and configuration, you can start the **Streamlit** application by running the following command:
 
 ```bash
 streamlit run main.py
 ```
 
-Isso abrirá a aplicação no seu navegador padrão. A partir daí, você poderá acessar diferentes funcionalidades através das abas disponíveis:
+This will open the application in your default web browser. From there, you can access different functionalities through the available tabs:
 
-- **Chatbot**: Interaja com o modelo GPT-2.
-- **Previsão de Próxima Palavra**: Insira um texto para prever a próxima palavra.
-- **Análise de Sentimentos**: Analise o sentimento de textos fornecidos.
-- **Quantização do Modelo**: Reduza o tamanho do modelo para implantação eficiente.
-- **Feedback do Usuário**: Forneça feedback sobre as respostas do modelo.
+- **Chatbot**: Interact with the GPT-2 model.
+- **Next Word Prediction**: Input text to predict the next word.
+- **Sentiment Analysis**: Analyze the sentiment of provided texts.
+- **Model Quantization**: Reduce model size for efficient deployment.
+- **User Feedback**: Provide feedback on model responses.
 
-## 🤝 Contribuição
+## 🤝 Contribution
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir **issues** e enviar **pull requests**.
+Contributions are welcome! Feel free to open **issues** and submit **pull requests**.
 
-## 📜 Licença
+## 📜 License
 
-Este projeto está licenciado sob a Licença **MIT**. Veja o arquivo LICENSE para mais detalhes.
+This project is licensed under the **MIT** License. See the LICENSE file for more details.
 
-## 📫 Contato
+## 📫 Contact
 
-Se você tiver qualquer dúvida ou sugestão, sinta-se à vontade para entrar em contato:
+If you have any questions or suggestions, feel free to reach out:
 
-- **Email**: [seu-email@example.com](mailto:seu-email@example.com)
-- **LinkedIn**: [Seu Perfil no LinkedIn](https://www.linkedin.com)
-- **GitHub**: [seu-usuario](https://github.com/seu-usuario)
+- **Email**: [your-email@example.com](mailto:your-email@example.com)
+- **LinkedIn**: [Your LinkedIn Profile](https://www.linkedin.com)
+- **GitHub**: [your-username](https://github.com/your-username)
 
-## 🙏 Agradecimentos
+## 🙏 Acknowledgements
 
-- **OpenAI** por fornecer os modelos de linguagem.
-- **Hugging Face** por suas ferramentas e modelos de NLP.
-- **Streamlit** por facilitar a criação de interfaces web interativas.
-- A todos os contribuidores e usuários que ajudam a melhorar este projeto!
+- **OpenAI** for providing the language models.
+- **Hugging Face** for their NLP tools and models.
+- **Streamlit** for making interactive web interfaces easy to build.
+- To all contributors and users who help improve this project!
