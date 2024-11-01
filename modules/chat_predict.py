@@ -10,38 +10,38 @@ from .utils import load_model_and_tokenizer, normalize_text
 from .sentiment_analysis import analyze_sentiment
 from dotenv import load_dotenv
 
-# Carregar variáveis de ambiente do arquivo .env, se existir
+# Load environment variables from .env file, if it exists
 load_dotenv()
 
-# Carregar configurações do config.yaml
+# Load configurations from config.yaml
 from .utils import load_config
 
 config = load_config('config/config.yaml')
 
-# Função para carregar e armazenar o modelo e tokenizador usando cache
+# Function to load and cache the model and tokenizer
 @st.cache_resource(show_spinner=False)
 def get_model_and_tokenizer(model_path: str) -> Tuple[Optional[GPT2LMHeadModel], Optional[GPT2TokenizerFast]]:
     """
-    Carrega o modelo GPT-2 e o tokenizador a partir do caminho especificado.
+    Loads the GPT-2 model and tokenizer from the specified path.
     
     Args:
-        model_path (str): Caminho para o diretório do modelo treinado.
+        model_path (str): Path to the directory of the trained model.
     
     Returns:
-        Tuple[Optional[GPT2LMHeadModel], Optional[GPT2TokenizerFast]]: Modelo e tokenizador carregados ou None se falhar.
+        Tuple[Optional[GPT2LMHeadModel], Optional[GPT2TokenizerFast]]: Loaded model and tokenizer or None if loading fails.
     """
     model_files = ['config.json', 'vocab.json', 'merges.txt', 'tokenizer.json']
     
     missing_files = [f for f in model_files if not os.path.exists(os.path.join(model_path, f))]
     if missing_files:
-        st.error(f"Modelo no diretório '{model_path}' está incompleto. Arquivos faltantes: {missing_files}")
+        st.error(f"Model in directory '{model_path}' is incomplete. Missing files: {missing_files}")
         return None, None
     
-    # Carregar o modelo e tokenizador
+    # Load the model and tokenizer
     model, tokenizer = load_model_and_tokenizer(model_path)
     
     if model is None or tokenizer is None:
-        st.error("Falha ao carregar o modelo ou tokenizador.")
+        st.error("Failed to load model or tokenizer.")
         return None, None
     
     return model, tokenizer
@@ -56,24 +56,24 @@ def chat_with_model(
     debug_mode: bool = False
 ) -> Tuple[str, Optional[Dict]]:
     """
-    Gera uma resposta do modelo GPT-2 com base no prompt fornecido.
+    Generates a response from the GPT-2 model based on the provided prompt.
     
     Args:
-        prompt (str): Texto de entrada para o modelo.
-        model_path (str, optional): Caminho para o modelo treinado. Defaults to './fine-tune-gpt2'.
-        temperature (float, optional): Parâmetro de temperatura para geração. Defaults to 1.0.
-        top_k (int, optional): Parâmetro top_k para geração. Defaults to 50.
-        top_p (float, optional): Parâmetro top_p para geração. Defaults to 0.95.
-        penalty (float, optional): Parâmetro de penalização para repetição. Defaults to 1.0.
-        debug_mode (bool, optional): Se True, retorna informações de depuração. Defaults to False.
+        prompt (str): Input text for the model.
+        model_path (str, optional): Path to the trained model. Defaults to './fine-tune-gpt2'.
+        temperature (float, optional): Temperature parameter for text generation. Defaults to 1.0.
+        top_k (int, optional): Top K parameter for text generation. Defaults to 50.
+        top_p (float, optional): Top P parameter for text generation. Defaults to 0.95.
+        penalty (float, optional): Penalty parameter for repetition. Defaults to 1.0.
+        debug_mode (bool, optional): If True, returns debugging information. Defaults to False.
     
     Returns:
-        Tuple[str, Optional[Dict]]: Resposta gerada e dados de depuração se ativado.
+        Tuple[str, Optional[Dict]]: Generated response and debug data if enabled.
     """
     model, tokenizer = get_model_and_tokenizer(model_path)
     
     if model is None or tokenizer is None:
-        st.error("Modelo ou tokenizador não foram carregados corretamente.")
+        st.error("Model or tokenizer were not loaded correctly.")
         return "", None
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -85,7 +85,7 @@ def chat_with_model(
         with torch.no_grad():
             outputs = model.generate(
                 input_ids, 
-                max_length=input_ids.size(1) + 50,  # Gera até 50 tokens adicionais
+                max_length=input_ids.size(1) + 50,  # Generate up to 50 additional tokens
                 temperature=temperature,
                 top_k=top_k,
                 top_p=top_p,
@@ -111,7 +111,7 @@ def chat_with_model(
         return generated_text, debug_info
 
     except Exception as e:
-        st.error(f"Erro ao gerar a resposta: {e}")
+        st.error(f"Error generating response: {e}")
         return "", None
 
 def predict_next_word(
@@ -124,23 +124,23 @@ def predict_next_word(
     debug_mode: bool = False
 ) -> Tuple[str, Optional[Dict]]:
     """
-    Prevé a próxima palavra após o texto fornecido.
+    Predicts the next word after the given text.
     
     Args:
-        text (str): Texto de entrada.
-        model_path (str, optional): Caminho para o modelo treinado. Defaults to './fine-tune-gpt2'.
-        temperature (float, optional): Parâmetro de temperatura para geração. Defaults to 1.0.
-        top_k (int, optional): Parâmetro top_k para geração. Defaults to 50.
-        top_p (float, optional): Parâmetro top_p para geração. Defaults to 0.95.
-        penalty (float, optional): Parâmetro de penalização para repetição. Defaults to 1.0.
-        debug_mode (bool, optional): Se True, retorna informações de depuração. Defaults to False.
+        text (str): Input text.
+        model_path (str, optional): Path to the trained model. Defaults to './fine-tune-gpt2'.
+        temperature (float, optional): Temperature parameter for text generation. Defaults to 1.0.
+        top_k (int, optional): Top K parameter for text generation. Defaults to 50.
+        top_p (float, optional): Top P parameter for text generation. Defaults to 0.95.
+        penalty (float, optional): Penalty parameter for repetition. Defaults to 1.0.
+        debug_mode (bool, optional): If True, returns debugging information. Defaults to False.
     
     Returns:
-        Tuple[str, Optional[Dict]]: Próxima palavra prevista e dados de depuração se ativado.
+        Tuple[str, Optional[Dict]]: Predicted next word and debug data if enabled.
     """
     model, tokenizer = get_model_and_tokenizer(model_path)
     if model is None or tokenizer is None:
-        st.error("Modelo ou tokenizador não carregado corretamente.")
+        st.error("Model or tokenizer not loaded correctly.")
         return "", None
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -152,7 +152,7 @@ def predict_next_word(
         with torch.no_grad():
             outputs = model.generate(
                 input_ids, 
-                max_length=input_ids.size(1) + 1,  # Apenas uma palavra a mais
+                max_length=input_ids.size(1) + 1,  # Only one additional word
                 temperature=temperature,
                 top_k=top_k,
                 top_p=top_p,
@@ -178,36 +178,36 @@ def predict_next_word(
         return next_word, debug_info
 
     except Exception as e:
-        st.error(f"Erro ao prever a próxima palavra: {e}")
+        st.error(f"Error predicting next word: {e}")
         return "", None
 
 def run_chatbot_interface():
     """
-    Executa a interface do chatbot utilizando Streamlit.
+    Runs the chatbot interface using Streamlit.
     """
-    st.header("🤖 Chatbot GPT-2")
+    st.header("🤖 GPT-2 Chatbot")
     
-    # Carregar modelo e tokenizador com cache
+    # Load model and tokenizer with cache
     model_path = config['training']['output_dir']
     model, tokenizer = get_model_and_tokenizer(model_path)
     if model is None or tokenizer is None:
-        st.error("Modelo ou tokenizador não carregado corretamente.")
+        st.error("Model or tokenizer not loaded correctly.")
         return
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     
-    # Histórico de conversas armazenado no Session State
+    # Conversation history stored in Session State
     if 'chat_history' not in st.session_state:
         st.session_state['chat_history'] = []
     
-    # Exibir histórico de mensagens
+    # Display conversation history
     for chat in st.session_state['chat_history']:
         if chat['role'] == 'user':
             st.markdown(f"""
             <div style="text-align: right;">
                 <span style="background-color: #3a3a3a; border-radius: 10px; padding: 10px; display: inline-block;">
-                    <strong>Você:</strong> {chat['content']}
+                    <strong>You:</strong> {chat['content']}
                 </span>
                 <span style="font-size: 10px; color: #AAAAAA;">{chat['timestamp']}</span>
             </div>
@@ -222,7 +222,7 @@ def run_chatbot_interface():
             </div>
             """, unsafe_allow_html=True)
     
-    # Parâmetros com tooltips
+    # Parameters with tooltips
     col1, col2, col3 = st.columns(3)
     with col1:
         temperature = st.slider(
@@ -231,7 +231,7 @@ def run_chatbot_interface():
             max_value=1.5,
             value=config['chatbot']['temperature'],
             step=0.1,
-            help="Controla a aleatoriedade da geração de texto. Valores mais altos resultam em respostas mais variadas."
+            help="Controls the randomness of the text generation. Higher values result in more varied responses."
         )
     with col2:
         top_k = st.slider(
@@ -240,7 +240,7 @@ def run_chatbot_interface():
             max_value=100,
             value=config['chatbot']['top_k'],
             step=10,
-            help="Considera os top K tokens mais prováveis para a próxima palavra."
+            help="Considers the top K most probable tokens for the next word."
         )
     with col3:
         top_p = st.slider(
@@ -249,7 +249,7 @@ def run_chatbot_interface():
             max_value=1.0,
             value=config['chatbot']['top_p'],
             step=0.05,
-            help="Considera a probabilidade cumulativa dos tokens para a próxima palavra."
+            help="Considers the cumulative probability of tokens for the next word."
         )
     
     col4, col5 = st.columns(2)
@@ -260,23 +260,23 @@ def run_chatbot_interface():
             max_value=2.0,
             value=config['chatbot']['penalty'],
             step=0.1,
-            help="Penaliza a repetição de palavras já geradas."
+            help="Penalizes repetition of already generated words."
         )
     with col5:
         debug_mode = st.checkbox(
-            "Modo de Depuração",
+            "Debug Mode",
             value=config['chatbot']['debug_mode'],
-            help="Ativa informações de depuração adicionais."
+            help="Enables additional debugging information."
         )
     
-    # Entrada do usuário
-    user_input = st.text_input("Você:", key="chat_input")
+    # User input
+    user_input = st.text_input("You:", key="chat_input")
     
-    # Botão para enviar a mensagem
-    send_button = st.button("Enviar", disabled=not user_input.strip())
+    # Button to send the message
+    send_button = st.button("Send", disabled=not user_input.strip())
     
-    # Botão para limpar o histórico da conversa
-    clear_button = st.button("Limpar Conversa")
+    # Button to clear the conversation history
+    clear_button = st.button("Clear Conversation")
     
     if clear_button:
         st.session_state['chat_history'] = []
@@ -284,18 +284,18 @@ def run_chatbot_interface():
     
     if send_button:
         if not user_input.strip():
-            st.warning("Por favor, insira um texto para conversar.")
+            st.warning("Please enter some text to chat.")
         else:
             try:
-                with st.spinner("O bot está pensando..."):
+                with st.spinner("The bot is thinking..."):
                     normalized_input = normalize_text(user_input)
     
-                    # Análise de sentimentos
+                    # Sentiment analysis
                     sentiment = analyze_sentiment(normalized_input, device=0 if device.type == 'cuda' else -1)
     
-                    # Ajuste da resposta com base no sentimento
+                    # Adjust response based on sentiment
                     if sentiment == "NEGATIVE":
-                        prompt = f"{normalized_input}\nResponda de forma reconfortante."
+                        prompt = f"{normalized_input}\nRespond in a comforting manner."
                     else:
                         prompt = normalized_input
     
@@ -309,7 +309,7 @@ def run_chatbot_interface():
                         debug_mode=debug_mode
                     )
     
-                    # Adicionar ao histórico
+                    # Add to history
                     st.session_state['chat_history'].append({
                         'role': 'user',
                         'content': normalized_input,
@@ -321,7 +321,7 @@ def run_chatbot_interface():
                         'timestamp': datetime.now().strftime("%H:%M:%S")
                     })
     
-                    # Feedback para aprendizado contínuo
+                    # Continuous learning feedback
                     if 'continuous_learning' not in st.session_state:
                         st.session_state['continuous_learning'] = []
                     st.session_state['continuous_learning'].append({
@@ -329,49 +329,49 @@ def run_chatbot_interface():
                         'response': response
                     })
     
-                    # Mostrar debug info se ativado
+                    # Show debug info if enabled
                     if debug_info:
                         st.write("**Debug Info:**")
                         st.json(debug_info)
     
             except Exception as e:
-                st.error(f"Ocorreu um erro ao gerar a resposta: {e}")
+                st.error(f"An error occurred while generating the response: {e}")
 
 def run_predict_interface():
     """
-    Executa a interface de previsão de próxima palavra utilizando Streamlit.
+    Runs the next word prediction interface using Streamlit.
     """
-    st.header("🔮 Prever Próxima Palavra")
+    st.header("🔮 Predict Next Word")
     
-    # Carregar modelo e tokenizador com cache
+    # Load model and tokenizer with cache
     model_path = config['training']['output_dir']
     model, tokenizer = get_model_and_tokenizer(model_path)
     if model is None or tokenizer is None:
-        st.error("Modelo ou tokenizador não carregado corretamente.")
+        st.error("Model or tokenizer not loaded correctly.")
         return
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     
-    # Histórico de previsões armazenado no Session State
+    # Prediction history stored in Session State
     if 'prediction_history' not in st.session_state:
         st.session_state['prediction_history'] = []
     
-    # Exibir histórico de previsões
+    # Display prediction history
     for prediction in st.session_state['prediction_history']:
         st.markdown(f"""
         <div style="text-align: left;">
             <span style="background-color: #2b4fff; border-radius: 10px; padding: 10px; display: inline-block;">
-                <strong>Texto:</strong> {prediction['input']}
+                <strong>Text:</strong> {prediction['input']}
             </span>
             <span style="background-color: #3a3a3a; border-radius: 10px; padding: 10px; display: inline-block; margin-left: 10px;">
-                <strong>Próxima Palavra:</strong> {prediction['next_word']}
+                <strong>Next Word:</strong> {prediction['next_word']}
             </span>
             <span style="font-size: 10px; color: #AAAAAA;">{prediction['timestamp']}</span>
         </div>
         """, unsafe_allow_html=True)
     
-    # Parâmetros com tooltips
+    # Parameters with tooltips
     col1, col2, col3 = st.columns(3)
     with col1:
         temperature = st.slider(
@@ -380,7 +380,7 @@ def run_predict_interface():
             max_value=1.5,
             value=config['prediction']['temperature'],
             step=0.1,
-            help="Controla a aleatoriedade da geração de texto. Valores mais altos resultam em respostas mais variadas."
+            help="Controls the randomness of the text generation. Higher values result in more varied responses."
         )
     with col2:
         top_k = st.slider(
@@ -389,7 +389,7 @@ def run_predict_interface():
             max_value=100,
             value=config['prediction']['top_k'],
             step=10,
-            help="Considera os top K tokens mais prováveis para a próxima palavra."
+            help="Considers the top K most probable tokens for the next word."
         )
     with col3:
         top_p = st.slider(
@@ -398,7 +398,7 @@ def run_predict_interface():
             max_value=1.0,
             value=config['prediction']['top_p'],
             step=0.05,
-            help="Considera a probabilidade cumulativa dos tokens para a próxima palavra."
+            help="Considers the cumulative probability of tokens for the next word."
         )
     
     col4, col5 = st.columns(2)
@@ -409,23 +409,23 @@ def run_predict_interface():
             max_value=2.0,
             value=config['prediction']['penalty'],
             step=0.1,
-            help="Penaliza a repetição de palavras já geradas."
+            help="Penalizes repetition of already generated words."
         )
     with col5:
         debug_mode = st.checkbox(
-            "Modo de Depuração",
+            "Debug Mode",
             value=config['prediction']['debug_mode'],
-            help="Ativa informações de depuração adicionais."
+            help="Enables additional debugging information."
         )
     
-    # Entrada do usuário
-    user_input = st.text_input("Texto:", key="prediction_input")
+    # User input
+    user_input = st.text_input("Text:", key="prediction_input")
     
-    # Botão para prever a próxima palavra
-    predict_button = st.button("Prever", disabled=not user_input.strip())
+    # Button to predict the next word
+    predict_button = st.button("Predict", disabled=not user_input.strip())
     
-    # Botão para limpar o histórico de previsões
-    clear_button = st.button("Limpar Histórico")
+    # Button to clear prediction history
+    clear_button = st.button("Clear History")
     
     if clear_button:
         st.session_state['prediction_history'] = []
@@ -433,10 +433,10 @@ def run_predict_interface():
     
     if predict_button:
         if not user_input.strip():
-            st.warning("Por favor, insira um texto para prever a próxima palavra.")
+            st.warning("Please enter some text to predict the next word.")
         else:
             try:
-                with st.spinner("Gerando a próxima palavra..."):
+                with st.spinner("Generating the next word..."):
                     normalized_input = normalize_text(user_input)
     
                     next_word, debug_info = predict_next_word(
@@ -449,14 +449,14 @@ def run_predict_interface():
                         debug_mode=debug_mode
                     )
     
-                    # Adicionar ao histórico
+                    # Add to history
                     st.session_state['prediction_history'].append({
                         'input': normalized_input,
                         'next_word': next_word,
                         'timestamp': datetime.now().strftime("%H:%M:%S")
                     })
     
-                    # Feedback para aprendizado contínuo
+                    # Continuous learning feedback
                     if 'continuous_learning' not in st.session_state:
                         st.session_state['continuous_learning'] = []
                     st.session_state['continuous_learning'].append({
@@ -464,19 +464,19 @@ def run_predict_interface():
                         'response': next_word
                     })
     
-                    # Mostrar debug info se ativado
+                    # Show debug info if enabled
                     if debug_info:
                         st.write("**Debug Info:**")
                         st.json(debug_info)
     
             except Exception as e:
-                st.error(f"Ocorreu um erro ao prever a próxima palavra: {e}")
+                st.error(f"An error occurred while predicting the next word: {e}")
 
 def run_chat_predict_interface():
     """
-    Executa as interfaces de Chatbot e Previsão de Próxima Palavra utilizando Streamlit.
+    Runs the Chatbot and Next Word Prediction interfaces using Streamlit.
     """
-    tab1, tab2 = st.tabs(["🤖 Chatbot", "🔮 Prever Próxima Palavra"])
+    tab1, tab2 = st.tabs(["🤖 Chatbot", "🔮 Predict Next Word"])
     
     with tab1:
         run_chatbot_interface()
@@ -485,4 +485,4 @@ def run_chat_predict_interface():
         run_predict_interface()
 
 if __name__ == "__main__":
-    st.warning("Este módulo não deve ser executado diretamente.")
+    st.warning("This module should not be run directly.")
