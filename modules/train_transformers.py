@@ -20,22 +20,22 @@ import streamlit as st
 from .utils import normalize_text, load_model_and_tokenizer
 from dotenv import load_dotenv
 
-# Carregar variáveis de ambiente do arquivo .env, se existir
+# Load environment variables from .env file, if it exists
 load_dotenv()
 
-# Callback personalizado para atualizar a barra de progresso do Streamlit durante o treinamento
+# Custom callback to update the Streamlit progress bar during training
 class StreamlitProgressCallback(TrainerCallback):
     """
-    Callback personalizado para atualizar a barra de progresso do Streamlit durante o treinamento com HuggingFace Trainer.
+    Custom callback to update the Streamlit progress bar during training with HuggingFace Trainer.
     """
 
     def __init__(self, progress_bar: Optional[st.delta_generator.DeltaGenerator], status_text: Optional[st.delta_generator.DeltaGenerator]):
         """
-        Inicializa o callback com a barra de progresso e o texto de status.
+        Initializes the callback with the progress bar and status text.
 
         Args:
-            progress_bar (Optional[st.delta_generator.DeltaGenerator]): Barra de progresso do Streamlit.
-            status_text (Optional[st.delta_generator.DeltaGenerator]): Texto de status do Streamlit.
+            progress_bar (Optional[st.delta_generator.DeltaGenerator]): Streamlit progress bar.
+            status_text (Optional[st.delta_generator.DeltaGenerator]): Streamlit status text.
         """
         self.progress_bar = progress_bar
         self.status_text = status_text
@@ -46,7 +46,7 @@ class StreamlitProgressCallback(TrainerCallback):
         if self.progress_bar:
             self.progress_bar.progress(0)
         if self.status_text:
-            self.status_text.text("Iniciando o treinamento...")
+            self.status_text.text("Starting training...")
 
     def on_step_end(self, args, state, control, **kwargs):
         if self.progress_bar and args.num_train_epochs > 0:
@@ -59,7 +59,7 @@ class StreamlitProgressCallback(TrainerCallback):
                 est_remaining = est_total - elapsed
                 est_time_str = str(timedelta(seconds=int(est_remaining)))
                 if self.status_text:
-                    self.status_text.text(f"Tempo restante estimado: {est_time_str}")
+                    self.status_text.text(f"Estimated remaining time: {est_time_str}")
         return
 
 def validate_parameters(
@@ -83,44 +83,44 @@ def validate_parameters(
     custom_model: str
 ) -> bool:
     """
-    Valida os parâmetros de entrada antes de iniciar o treinamento.
+    Validates input parameters before starting training.
 
     Args:
-        Todos os parâmetros necessários para o treinamento.
+        All parameters required for training.
 
     Returns:
-        bool: True se todos os parâmetros forem válidos, False caso contrário.
+        bool: True if all parameters are valid, False otherwise.
     """
     errors = []
     if not os.path.exists(data_path):
-        errors.append(f"O arquivo de dados '{data_path}' não foi encontrado.")
+        errors.append(f"The data file '{data_path}' was not found.")
     if num_epochs < 1:
-        errors.append("O número de épocas deve ser pelo menos 1.")
+        errors.append("The number of epochs must be at least 1.")
     if batch_size < 1:
-        errors.append("O tamanho do batch deve ser pelo menos 1.")
+        errors.append("The batch size must be at least 1.")
     if not (16 <= max_length <= 1024):
-        errors.append("O comprimento máximo dos tokens deve estar entre 16 e 1024.")
+        errors.append("The maximum token length must be between 16 and 1024.")
     if not (1e-6 <= learning_rate <= 1e-3):
-        errors.append("A taxa de aprendizado deve estar entre 1e-6 e 1e-3.")
+        errors.append("The learning rate must be between 1e-6 and 1e-3.")
     if not (0.0 <= validation_split <= 0.5):
-        errors.append("A proporção de validação deve estar entre 0 e 0.5.")
+        errors.append("The validation proportion must be between 0 and 0.5.")
     if save_steps < 100:
-        errors.append("O número de steps para salvar deve ser pelo menos 100.")
+        errors.append("The number of steps to save must be at least 100.")
     if logging_steps < 10:
-        errors.append("O número de steps para log deve ser pelo menos 10.")
+        errors.append("The number of steps to log must be at least 10.")
     if save_total_limit < 1:
-        errors.append("O limite total de salvamentos deve ser pelo menos 1.")
+        errors.append("The total save limit must be at least 1.")
     if gradient_accumulation_steps < 1:
-        errors.append("O número de gradient accumulation steps deve ser pelo menos 1.")
+        errors.append("The number of gradient accumulation steps must be at least 1.")
     if use_eval_strategy:
         if eval_strategy not in ["steps", "epoch"]:
-            errors.append("A estratégia de avaliação deve ser 'steps' ou 'epoch'.")
+            errors.append("The evaluation strategy must be 'steps' or 'epoch'.")
         if eval_strategy == "steps" and (eval_steps_hf is None or eval_steps_hf < 100):
-            errors.append("O número de steps para avaliação deve ser pelo menos 100.")
+            errors.append("The number of steps for evaluation must be at least 100.")
     if huggingface_token and not isinstance(huggingface_token, str):
-        errors.append("O token do HuggingFace deve ser uma string.")
+        errors.append("The HuggingFace token must be a string.")
     if custom_model and not isinstance(custom_model, str):
-        errors.append("O caminho ou nome do modelo personalizado deve ser uma string.")
+        errors.append("The custom model path or name must be a string.")
 
     if errors:
         for error in errors:
@@ -153,37 +153,37 @@ def train_with_transformers(
     custom_model: str = ""
 ):
     """
-    Treina o modelo utilizando o Trainer da HuggingFace.
+    Trains the model using the HuggingFace Trainer.
 
     Args:
-        data_path (str): Caminho para o arquivo de dados de treinamento.
-        model_name (str, optional): Nome do modelo pré-treinado ou caminho para modelo personalizado. Defaults to 'gpt2'.
-        output_dir (str, optional): Diretório para salvar o modelo treinado. Defaults to './fine-tune-gpt2'.
-        num_epochs (int, optional): Número de épocas. Defaults to 3.
-        batch_size (int, optional): Tamanho do batch. Defaults to 32.
-        max_length (int, optional): Comprimento máximo dos tokens. Defaults to 128.
-        learning_rate (float, optional): Taxa de aprendizado. Defaults to 5e-5.
-        validation_split (float, optional): Proporção de validação. Defaults to 0.1.
-        save_steps (int, optional): Número de steps entre salvamentos. Defaults to 500.
-        logging_steps (int, optional): Número de steps entre logs. Defaults to 100.
-        save_total_limit (int, optional): Limite total de salvamentos. Defaults to 2.
-        fp16 (bool, optional): Uso de precisão reduzida. Defaults to False.
-        load_best_model_at_end (bool, optional): Carregar o melhor modelo no final. Defaults to False.
-        metric_for_best_model (str, optional): Métrica para o melhor modelo. Defaults to "eval_loss".
-        gradient_accumulation_steps (int, optional): Número de passos para acumulação de gradientes antes de atualizar os pesos. Defaults to 1.
-        use_eval_strategy (bool, optional): Se True, usa estratégia de avaliação. Defaults to False.
-        eval_strategy (Optional[str], optional): Estratégia de avaliação ('steps' ou 'epoch'). Defaults to None.
-        eval_steps_hf (Optional[int], optional): Número de steps entre avaliações. Defaults to None.
-        progress_bar (Optional[st.delta_generator.DeltaGenerator], optional): Barra de progresso. Defaults to None.
-        status_text (Optional[st.delta_generator.DeltaGenerator], optional): Texto de status. Defaults to None.
-        huggingface_token (str, optional): Token de autenticação do HuggingFace. Defaults to "".
-        custom_model (str, optional): Caminho ou nome do modelo personalizado do HuggingFace. Defaults to "".
+        data_path (str): Path to the training data file.
+        model_name (str, optional): Name of the pre-trained model or path to a custom model. Defaults to 'gpt2'.
+        output_dir (str, optional): Directory to save the trained model. Defaults to './fine-tune-gpt2'.
+        num_epochs (int, optional): Number of epochs. Defaults to 3.
+        batch_size (int, optional): Batch size. Defaults to 32.
+        max_length (int, optional): Maximum token length. Defaults to 128.
+        learning_rate (float, optional): Learning rate. Defaults to 5e-5.
+        validation_split (float, optional): Validation proportion. Defaults to 0.1.
+        save_steps (int, optional): Number of steps between saves. Defaults to 500.
+        logging_steps (int, optional): Number of steps between logs. Defaults to 100.
+        save_total_limit (int, optional): Total save limit. Defaults to 2.
+        fp16 (bool, optional): Use of reduced precision. Defaults to False.
+        load_best_model_at_end (bool, optional): Load the best model at the end. Defaults to False.
+        metric_for_best_model (str, optional): Metric for the best model. Defaults to "eval_loss".
+        gradient_accumulation_steps (int, optional): Number of gradient accumulation steps before updating weights. Defaults to 1.
+        use_eval_strategy (bool, optional): If True, use evaluation strategy. Defaults to False.
+        eval_strategy (Optional[str], optional): Evaluation strategy ('steps' or 'epoch'). Defaults to None.
+        eval_steps_hf (Optional[int], optional): Number of steps between evaluations. Defaults to None.
+        progress_bar (Optional[st.delta_generator.DeltaGenerator], optional): Progress bar. Defaults to None.
+        status_text (Optional[st.delta_generator.DeltaGenerator], optional): Status text. Defaults to None.
+        huggingface_token (str, optional): HuggingFace authentication token. Defaults to "".
+        custom_model (str, optional): Path or name of the custom HuggingFace model. Defaults to "".
     """
-    st.info("Iniciando o treinamento com HuggingFace Trainer...")
+    st.info("Starting training with HuggingFace Trainer...")
     
     start_time = time.time()
 
-    # Validação de parâmetros
+    # Parameter validation
     if not validate_parameters(
         data_path, model_name, output_dir, num_epochs, batch_size, max_length,
         learning_rate, validation_split, save_steps, logging_steps,
@@ -191,27 +191,27 @@ def train_with_transformers(
         use_eval_strategy, eval_strategy, eval_steps_hf,
         huggingface_token, custom_model
     ):
-        st.error("Parâmetros de treinamento inválidos. Por favor, corrija os erros acima e tente novamente.")
+        st.error("Invalid training parameters. Please correct the errors above and try again.")
         return
 
     try:
-        # Configurar autenticação do HuggingFace se o token for fornecido
+        # Configure HuggingFace authentication if token is provided
         if huggingface_token:
             os.environ["HF_HOME"] = os.path.expanduser("~/.cache/huggingface")
             from huggingface_hub import login
             login(token=huggingface_token)
-            st.success("Autenticação no HuggingFace realizada com sucesso.")
+            st.success("Successfully authenticated with HuggingFace.")
 
-        # Determinar o tipo de dataset
+        # Determine the type of dataset
         if data_path.endswith('.jsonl'):
             dataset = load_dataset('json', data_files={'train': data_path}, split='train')
         elif data_path.endswith('.txt'):
             dataset = load_dataset('text', data_files={'train': data_path}, split='train')
         else:
-            st.error("Formato de arquivo não suportado. Use '.jsonl' ou '.txt'.")
+            st.error("Unsupported file format. Use '.jsonl' or '.txt'.")
             return
 
-        # Dividir o dataset em treinamento e validação
+        # Split the dataset into training and validation
         if validation_split > 0:
             split_dataset = dataset.train_test_split(test_size=validation_split)
             train_dataset = split_dataset['train']
@@ -220,16 +220,16 @@ def train_with_transformers(
             train_dataset = dataset
             eval_dataset = None
 
-        # Carregar tokenizador e modelo
+        # Load tokenizer and model
         tokenizer = GPT2TokenizerFast.from_pretrained(custom_model if custom_model else model_name)
         model = GPT2LMHeadModel.from_pretrained(custom_model if custom_model else model_name)
 
-        # Adicionar token de padding se necessário
+        # Add padding token if necessary
         if tokenizer.pad_token is None:
             tokenizer.add_special_tokens({'pad_token': '[PAD]'})
             model.resize_token_embeddings(len(tokenizer))
 
-        # Função de tokenização
+        # Tokenization function
         def tokenize_function(examples):
             tokenized = tokenizer(
                 examples['text'],
@@ -240,7 +240,7 @@ def train_with_transformers(
             tokenized['labels'] = tokenized['input_ids'].copy()
             return tokenized
 
-        # Aplicar tokenização
+        # Apply tokenization
         tokenized_train = train_dataset.map(
             tokenize_function,
             batched=True,
@@ -255,12 +255,12 @@ def train_with_transformers(
         else:
             tokenized_eval = None
 
-        # Configurar o formato do dataset para PyTorch
+        # Set dataset format for PyTorch
         tokenized_train.set_format(type='torch', columns=['input_ids', 'attention_mask', 'labels'])
         if tokenized_eval:
             tokenized_eval.set_format(type='torch', columns=['input_ids', 'attention_mask', 'labels'])
 
-        # Configurações de treinamento
+        # Training settings
         training_args_dict = {
             "output_dir": output_dir,
             "overwrite_output_dir": True,
@@ -277,14 +277,14 @@ def train_with_transformers(
             "metric_for_best_model": metric_for_best_model,
             "eval_strategy": eval_strategy if use_eval_strategy else "no",
             "eval_steps": eval_steps_hf if use_eval_strategy and eval_strategy == "steps" else None,
-            "report_to": "none",  # Desativa reportes para evitar conflitos com Streamlit
+            "report_to": "none",  # Disable reporting to avoid conflicts with Streamlit
             #"use_cpu": not torch.cuda.is_available() if fp16 is None else not fp16,
-            "no_cuda": not torch.cuda.is_available(),  # Substituição correta
+            "no_cuda": not torch.cuda.is_available(),  # Correct substitution
         }
 
         training_args = TrainingArguments(**training_args_dict)
 
-        # Inicializar Trainer com callbacks para atualizar a barra de progresso
+        # Initialize Trainer with callbacks to update the progress bar
         callbacks = []
         if use_eval_strategy and eval_strategy == "steps" and progress_bar:
             callbacks.append(StreamlitProgressCallback(progress_bar, status_text))
@@ -298,37 +298,37 @@ def train_with_transformers(
             callbacks=callbacks
         )
 
-        # Iniciar treinamento
+        # Start training
         trainer.train()
 
-        # Avaliar o modelo se houver conjunto de validação
+        # Evaluate the model if there is a validation set
         if eval_dataset:
             eval_result = trainer.evaluate()
-            st.write(f"**Avaliação Final:** {eval_result}")
+            st.write(f"**Final Evaluation:** {eval_result}")
 
-        # Salvar modelo e tokenizador
-        st.info("Salvando o modelo e o tokenizador...")
+        # Save model and tokenizer
+        st.info("Saving the model and tokenizer...")
         model.save_pretrained(output_dir)
         tokenizer.save_pretrained(output_dir)
-        st.success("Modelo e tokenizador salvos com sucesso.")
+        st.success("Model and tokenizer saved successfully.")
 
-        # Verificar se todos os arquivos foram salvos
+        # Verify that all files have been saved
         required_files = ['config.json', 'vocab.json', 'merges.txt', 'tokenizer.json']
         missing_files = [f for f in required_files if not os.path.exists(os.path.join(output_dir, f))]
 
         if missing_files:
-            st.error(f"O modelo no diretório '{output_dir}' está incompleto. Arquivos faltantes: {missing_files}")
+            st.error(f"The model in directory '{output_dir}' is incomplete. Missing files: {missing_files}")
         else:
             end_time = time.time()
             total_time = end_time - start_time
-            st.success(f"Treinamento concluído e modelo salvo em '{output_dir}'. Tempo total: {str(timedelta(seconds=int(total_time)))}.")
+            st.success(f"Training completed and model saved in '{output_dir}'. Total time: {str(timedelta(seconds=int(total_time)))}.")
       
     except FileNotFoundError:
-        st.error("Arquivo de dados não encontrado. Verifique o caminho e tente novamente.")
+        st.error("Data file not found. Please check the path and try again.")
     except ValueError as ve:
-        st.error(f"Valor inválido: {ve}")
+        st.error(f"Invalid value: {ve}")
     except Exception as e:
-        st.error(f"Ocorreu um erro durante o treinamento: {e}")
+        st.error(f"An error occurred during training: {e}")
 
     if __name__ == "__main__":
-        st.warning("Este módulo não deve ser executado diretamente.")
+        st.warning("This module should not be run directly.")
