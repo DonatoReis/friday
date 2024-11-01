@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 def setup_logging():
     """
-    Configura o sistema de logging para a aplicação.
+    Sets up the logging system for the application.
     """
     logging.basicConfig(
         level=logging.INFO,
@@ -22,13 +22,13 @@ def setup_logging():
 
 def validate_config(config):
     """
-    Valida se todas as configurações necessárias estão presentes.
+    Validates if all the necessary configurations are present.
     
     Args:
-        config (dict): Dicionário de configurações carregadas.
+        config (dict): Loaded configuration dictionary.
     
     Returns:
-        bool: True se todas as configurações estiverem presentes, False caso contrário.
+        bool: True if all configurations are present, False otherwise.
     """
     required_sections = [
         'general',
@@ -44,45 +44,45 @@ def validate_config(config):
     ]
     missing_sections = [section for section in required_sections if section not in config]
     if missing_sections:
-        st.error(f"Seções de configuração faltantes: {missing_sections}")
-        logging.error(f"Seções de configuração faltantes: {missing_sections}")
+        st.error(f"Missing configuration sections: {missing_sections}")
+        logging.error(f"Missing configuration sections: {missing_sections}")
         return False
     return True
 
 def main():
     """
-    Função principal que executa a interface da aplicação.
+    Main function that runs the application interface.
     """
     try:
-        # Configurar logging
+        # Set up logging
         setup_logging()
-        logging.info("Aplicação iniciada.")
+        logging.info("Application started.")
         
-        # Carregar variáveis de ambiente do arquivo .env, se existir
+        # Load environment variables from .env file, if it exists
         load_dotenv()
-        logging.info("Variáveis de ambiente carregadas.")
+        logging.info("Environment variables loaded.")
         
-        # Carregar configurações do config.yaml
+        # Load configurations from config.yaml
         config = load_config('config/config.yaml')
         if config is None:
-            st.error("Falha ao carregar as configurações. Verifique o arquivo 'config/config.yaml'.")
-            logging.error("Falha ao carregar as configurações.")
+            st.error("Failed to load configurations. Check the 'config/config.yaml' file.")
+            logging.error("Failed to load configurations.")
             sys.exit(1)
         
-        # Validar configurações
+        # Validate configurations
         if not validate_config(config):
-            logging.error("Configurações inválidas. Encerrando a aplicação.")
+            logging.error("Invalid configurations. Shutting down the application.")
             sys.exit(1)
 
-        # Executar a interface
+        # Run the interface
         run_interface()
         
     except Exception as e:
-        st.error(f"Ocorreu um erro inesperado: {e}")
-        logging.exception("Erro inesperado na aplicação.")
+        st.error(f"An unexpected error occurred: {e}")
+        logging.exception("Unexpected error in the application.")
         sys.exit(1)
     finally:
-        logging.info("Aplicação encerrada.")
+        logging.info("Application stopped.")
 
 if __name__ == "__main__":
     main()
