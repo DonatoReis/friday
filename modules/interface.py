@@ -16,34 +16,35 @@ from .quantization import quantize_model
 from .utils import load_config, normalize_text, load_model_and_tokenizer
 from .sentiment_analysis import analyze_sentiment
 
-# Importar para manipulação de variáveis de ambiente
+# Import for managing environment variables
 from dotenv import load_dotenv
 
-# Carregar variáveis de ambiente do arquivo .env, se existir
+# Load environment variables from .env file, if it exists
 load_dotenv()
 
-# Função para carregar o arquivo de configuração
+# Function to load the configuration file
 config = load_config('config/config.yaml')
 
-# Função para carregar e armazenar o modelo e tokenizador usando cache
+# Function to load and cache the model and tokenizer
 @st.cache_resource(show_spinner=False)
 def get_model_and_tokenizer(model_path: str) -> Tuple[Optional[GPT2LMHeadModel], Optional[GPT2TokenizerFast]]:
     """
-    Carrega o modelo GPT-2 e o tokenizador a partir do caminho especificado.
+    Loads the GPT-2 model and tokenizer from the specified path.
 
     Args:
-        model_path (str): Caminho para o diretório do modelo treinado.
+        model_path (str): Path to the directory of the trained model.
 
     Returns:
-        Tuple[Optional[GPT2LMHeadModel], Optional[GPT2TokenizerFast]]: Modelo e tokenizador carregados ou None se falhar.
+        Tuple[Optional[GPT2LMHeadModel], Optional[GPT2TokenizerFast]]: Loaded model and tokenizer or None if loading fails.
     """
     model, tokenizer = load_model_and_tokenizer(model_path)
     if model is None or tokenizer is None:
-        st.error("Modelo ou tokenizador não carregado corretamente.")
+        st.error("Model or tokenizer not loaded correctly.")
         return None, None
     return model, tokenizer
 
-# Configuração da página do Streamlit
+# Streamlit page configuration
+
 def setup_page():
     st.set_page_config(
         page_title=config['general']['app_title'],
@@ -52,14 +53,15 @@ def setup_page():
         initial_sidebar_state=config['general']['initial_sidebar_state'],
     )
 
-# Função para aplicar CSS personalizado
+# Function to apply custom CSS
+
 def apply_custom_css():
     """
-    Aplica estilos CSS personalizados para melhorar a interface do Streamlit.
+    Applies custom CSS styles to enhance the Streamlit interface.
     """
     custom_css = """
     <style>
-    /* Fonte local "Inter" */
+    /* Local "Inter" font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
     html, body, [class*="css"]  {
@@ -72,7 +74,7 @@ def apply_custom_css():
         background-color: #1A1A1A;
     }
 
-    /* Atualização de seletores CSS para maior robustez */
+    /* Updated CSS selectors for greater robustness */
     div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
         background-color: #1A1A1A;
     }
@@ -85,13 +87,13 @@ def apply_custom_css():
         color: #2B4FFF;
     }
 
-    /* Botões */
+    /* Buttons */
     .stButton>button {
         color: #FFFFFF;
         background-color: #2B4FFF;
     }
 
-    /* Campos de Input */
+    /* Input Fields */
     .stTextInput>div>div>input {
         background-color: #2b2b2b;
         color: #FFFFFF;
@@ -107,7 +109,7 @@ def apply_custom_css():
         background-color: #2b2b2b;
     }
 
-    /* Estilização de balões de chat */
+    /* Chat bubble styling */
     .user_message {
         background-color: #3a3a3a;
         border-radius: 10px;
@@ -155,7 +157,7 @@ def apply_custom_css():
         opacity: 1;
     }
 
-    /* Avatares */
+    /* Avatars */
     .avatar {
         width: 30px;
         height: 30px;
@@ -175,110 +177,106 @@ def apply_custom_css():
     """
     st.markdown(custom_css, unsafe_allow_html=True)
 
-# Função principal para a interface do Streamlit
+# Main function for the Streamlit interface
+
 def run_interface():
-    # Configurar a página
+    # Configure the page
     setup_page()
 
-    # Aplicar CSS personalizado
+    # Apply custom CSS
     apply_custom_css()
 
-    # Carregar token do HuggingFace de variável de ambiente
+    # Load HuggingFace token from environment variable
     huggingface_token = os.getenv(config['huggingface']['token_env_var'], "")
     
-    # Configurações de Treinamento no Sidebar
-    st.sidebar.header("Configurações de Treinamento")
+    # Training Settings in the Sidebar
+    st.sidebar.header("Training Settings")
     
-    # Guia de Uso
-    with st.sidebar.expander("📖 Guia de Uso"):
+    # User Guide
+    with st.sidebar.expander("📖 User Guide"):
         st.markdown("""
         **GPT-2 Trainer & Chatbot**
         
-        Este aplicativo permite treinar um modelo GPT-2 personalizado e interagir com ele através de um chatbot.
+        This application allows training a custom GPT-2 model and interacting with it via a chatbot.
         
-        **Limitações:**
-        - Treinamentos longos podem levar tempo significativo, especialmente sem GPU.
-        - A qualidade das respostas depende da qualidade e quantidade dos dados de treinamento.
+        **Limitations:**
+        - Long training sessions may take significant time, especially without a GPU.
+        - The quality of responses depends on the quality and quantity of training data.
         
-        **Como Usar:**
-        1. **Treinamento:**
-            - Faça upload de um arquivo `.jsonl` ou `.txt` com os dados de treinamento.
-            - Configure os parâmetros de treinamento conforme necessário.
-            - Se desejar, ative o ajuste automático de hiperparâmetros com Optuna.
-            - Clique em "Iniciar Treinamento" e aguarde a conclusão.
+        **How to Use:**
+        1. **Training:**
+            - Upload a `.jsonl` or `.txt` file with training data.
+            - Set the training parameters as needed.
+            - If desired, enable hyperparameter tuning with Optuna.
+            - Click "Start Training" and wait for it to complete.
         2. **Chatbot:**
-            - Após o treinamento, utilize a aba "🤖 Chatbot" para conversar com o modelo treinado.
-        3. **Prever Próxima Palavra:**
-            - Utilize a aba "🔮 Prever Próxima Palavra" para obter sugestões de palavras baseadas no texto fornecido.
+            - After training, use the "🤖 Chatbot" tab to chat with the trained model.
+        3. **Predict Next Word:**
+            - Use the "🔮 Predict Next Word" tab to get word suggestions based on provided text.
         """)
     
-    # Upload de arquivo de treinamento utilizando tempfile para gestão segura
+    # Upload training file using tempfile for secure management
     uploaded_file = st.sidebar.file_uploader(
-        "Escolha o arquivo de treinamento (.jsonl ou .txt)", type=["jsonl", "txt"]
+        "Select training file (.jsonl or .txt)", type=["jsonl", "txt"]
     )
     
-    # Seleção do modelo
+    # Model selection
     selected_model = st.sidebar.selectbox(
-        "Escolha o modelo GPT-2",
+        "Choose GPT-2 model",
         config['training']['model_options'],
         index=config['training']['model_options'].index(config['training']['default_model'])
     )
     
-    # Inserção do modelo personalizado do HuggingFace
+    # Custom HuggingFace model input
     custom_model = st.sidebar.text_input(
-        "Modelo Personalizado do HuggingFace",
+        "Custom HuggingFace Model",
         value=config['huggingface']['custom_model'],
-        help="Insira o caminho ou nome do modelo personalizado do HuggingFace."
+        help="Enter the path or name of the custom HuggingFace model."
     )
     
-    # Diretório de saída
+    # Output directory
     output_dir = st.sidebar.text_input(
-        "Diretório para salvar o modelo treinado",
+        "Directory to save the trained model",
         value=config['training']['output_dir']
     )
     
-    # Parâmetros de treinamento com validação
+    # Training parameters with validation
     num_epochs = st.sidebar.number_input(
-        "Número de épocas",
+        "Number of epochs",
         min_value=int(1),
         max_value=int(1000),
         value=int(config['training']['num_epochs']),
         step=int(1)
     )
-    logging.info(f"num_epochs type: {type(config['training']['num_epochs'])}, value: {config['training']['num_epochs']}")
     batch_size = st.sidebar.number_input(
-        "Tamanho do batch",
+        "Batch size",
         min_value=int(1),
         max_value=int(128),
         value=int(config['training']['batch_size']),
         step=int(1)
     )
-    logging.info(f"batch_size type: {type(config['training']['batch_size'])}, value: {config['training']['batch_size']}")
     max_length = st.sidebar.number_input(
-        "Comprimento máximo dos tokens",
+        "Maximum token length",
         min_value=int(16),
         max_value=int(2048),
         value=int(config['training']['max_length']),
         step=int(16)
     )
-    logging.info(f"max_length type: {type(config['training']['max_length'])}, value: {config['training']['max_length']}")
     learning_rate = st.sidebar.number_input(
-        "Taxa de aprendizado",
+        "Learning rate",
         min_value=float(1e-6),
         max_value=float(1e-3),
         value=float(config['training']['learning_rate']),
         step=float(1e-6),
         format="%.6f"
     )
-    logging.info(f"learning_rate type: {type(config['training']['learning_rate'])}, value: {config['training']['learning_rate']}")
     validation_split = st.sidebar.slider(
-        "Proporção de validação",
+        "Validation split",
         0.0,
         0.5,
         config['training']['validation_split'],
         0.05
     )
-    logging.info(f"validation_split type: {type(config['training']['validation_split'])}, value: {config['training']['validation_split']}")
     
     # Gradient Accumulation Steps
     gradient_accumulation_steps = st.sidebar.number_input(
@@ -287,12 +285,12 @@ def run_interface():
         max_value=int(64),
         value=int(config['training']['gradient_accumulation_steps']),
         step=int(1),
-        help="Número de passos para acumulação de gradientes antes de atualizar os pesos."
+        help="Number of steps for gradient accumulation before updating weights."
     )
     
-    # Precisão reduzida (fp16) ou padrão (fp32)
+    # Reduced precision (fp16) or standard precision (fp32)
     fp16_option = st.sidebar.selectbox(
-        "Escolha a precisão do modelo",
+        "Select model precision",
         ["auto", "fp16", "fp32"],
         index=["auto", "fp16", "fp32"].index(config['training']['fp16_option'])
     )
@@ -303,69 +301,69 @@ def run_interface():
     else:
         fp16 = config['training']['fp16_option'] == "auto"
     
-    # Opção de ajuste automático de hiperparâmetros
+    # Option for automatic hyperparameter tuning
     automatic_hp_tuning = st.sidebar.checkbox(
-        "Ativar ajuste automático de hiperparâmetros (Optuna)",
+        "Enable hyperparameter tuning (Optuna)",
         value=config['training']['automatic_hp_tuning']
     )
     
-    # Opção de estratégia de avaliação
-    st.sidebar.header("Estratégia de Avaliação")
+    # Evaluation strategy option
+    st.sidebar.header("Evaluation Strategy")
     use_eval = st.sidebar.checkbox(
-        "Usar estratégia de avaliação",
+        "Use evaluation strategy",
         value=config['training']['use_eval_strategy']
     )
     if use_eval:
         eval_strategy = st.sidebar.selectbox(
-            "Estratégia de avaliação",
+            "Evaluation strategy",
             ["steps", "epoch"]
         )
         eval_steps = None
         if eval_strategy == "steps":
             eval_steps = st.sidebar.number_input(
-                "Número de steps entre avaliações",
+                "Number of steps between evaluations",
                 min_value=int(100),
                 max_value=int(10000),
                 value=int(config['training']['eval_steps_hf']),
                 step=int(100)
             )
-        # Opção para carregar o melhor modelo ao final do treinamento
+        # Option to load the best model at the end of training
         load_best = st.sidebar.checkbox(
-            "Carregar melhor modelo ao final do treinamento",
+            "Load best model at the end of training",
             value=config['training']['load_best_model_at_end']
         )
     else:
         eval_strategy = None
         eval_steps = None
-        load_best = False  # Não carregar o melhor modelo se não houver avaliação
+        load_best = False  # Do not load the best model if there is no evaluation
     
-    # Botão para iniciar o treinamento
-    if st.sidebar.button("Iniciar Treinamento"):
+    # Button to start training
+    if st.sidebar.button("Start Training"):
         if uploaded_file is None:
-            st.sidebar.error("Por favor, faça upload de um arquivo de treinamento.")
+            st.sidebar.error("Please upload a training file.")
         else:
-            # Validar parâmetros de entrada
+            # Validate input parameters
             if not (0 <= validation_split <= 0.5):
-                st.sidebar.error("A proporção de validação deve estar entre 0 e 0.5.")
+                st.sidebar.error("Validation split must be between 0 and 0.5.")
             elif not (1e-6 <= learning_rate <= 1e-3):
-                st.sidebar.error("A taxa de aprendizado deve estar entre 1e-6 e 1e-3.")
+                st.sidebar.error("Learning rate must be between 1e-6 and 1e-3.")
             elif not (16 <= max_length <= 1024):
-                st.sidebar.error("O comprimento máximo dos tokens deve estar entre 16 e 1024.")
+                st.sidebar.error("Maximum token length must be between 16 and 1024.")
             else:
-                # Utilizar tempfile para gestão segura de arquivos temporários
+                # Use tempfile for secure temporary file management
                 with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as temp_file:
                     temp_file.write(uploaded_file.getbuffer())
                     data_path = temp_file.name
                 
-                # Barra de progresso (apenas para HuggingFace Trainer)
+                # Progress bar (only for HuggingFace Trainer)
                 progress_bar = st.sidebar.progress(0) if use_eval and eval_strategy == "steps" else None
                 status_text = st.sidebar.empty()
                 
-                # Iniciar o treinamento com tratamento de erros
+                # Start training with error handling
                 try:
-                    with st.spinner("Iniciando o treinamento..."):
+                    with st.spinner("Starting training..."):
                         if automatic_hp_tuning:
-                            # Usar PyTorch Lightning com Optuna
+                            # Use PyTorch Lightning with Optuna
                             train_with_optuna(
                                 data_path=data_path,
                                 model_name=selected_model,
@@ -386,7 +384,7 @@ def run_interface():
                                 custom_model=custom_model
                             )
                         else:
-                            # Usar HuggingFace Trainer
+                            # Use HuggingFace Trainer
                             train_with_transformers(
                                 data_path=data_path,
                                 model_name=selected_model,
@@ -400,7 +398,7 @@ def run_interface():
                                 logging_steps=config['training']['logging_steps'],
                                 save_total_limit=config['training']['save_total_limit'],
                                 fp16=fp16,
-                                load_best_model_at_end=use_eval,  # Alteração importante
+                                load_best_model_at_end=use_eval,  # Important change
                                 metric_for_best_model=config['training']['metric_for_best_model'],
                                 gradient_accumulation_steps=gradient_accumulation_steps,
                                 use_eval_strategy=use_eval,
@@ -411,63 +409,63 @@ def run_interface():
                                 custom_model=custom_model
                             )
                     
-                    st.sidebar.success("Treinamento concluído com sucesso!")
+                    st.sidebar.success("Training successfully completed!")
                     
-                    # Limpar o cache para recarregar o modelo treinado
+                    # Clear cache to reload the trained model
                     get_model_and_tokenizer.clear()
 
-                    # Verificar se todos os arquivos do modelo foram salvos corretamente
+                    # Check if all model files were saved correctly
                     model_files = ['config.json', 'vocab.json', 'merges.txt', 'tokenizer.json']
                     if not all(os.path.exists(os.path.join(output_dir, f)) for f in model_files):
-                        st.error(f"O modelo no diretório '{output_dir}' está incompleto. Arquivos faltantes: {[f for f in model_files if not os.path.exists(os.path.join(output_dir, f))]}")
+                        st.error(f"Model in directory '{output_dir}' is incomplete. Missing files: {[f for f in model_files if not os.path.exists(os.path.join(output_dir, f))]}")
                     else:
-                        st.sidebar.success("Modelo salvo corretamente!")
+                        st.sidebar.success("Model saved correctly!")
                     
-                    # Carregar o melhor modelo ou o último modelo salvo com base na estratégia de avaliação
+                    # Load the best model or the last saved model based on the evaluation strategy
                     if use_eval:
-                        st.sidebar.info("Carregando o melhor modelo treinado com base na métrica.")
-                        # Lógica para carregar o melhor modelo com base na métrica
+                        st.sidebar.info("Loading the best trained model based on the metric.")
+                        # Logic to load the best model based on the metric
                     else:
-                        st.sidebar.info("Carregando o último modelo treinado.")
-                        # Lógica para carregar o último modelo salvo
+                        st.sidebar.info("Loading the last trained model.")
+                        # Logic to load the last saved model
 
-                    # Reiniciar a aplicação para atualizar a interface
+                    # Restart the application to update the interface
                     st.experimental_rerun()
                     
                 except Exception as e:
-                    st.sidebar.error(f"Ocorreu um erro durante o treinamento: {e}")
+                    st.sidebar.error(f"An error occurred during training: {e}")
                 finally:
-                    # Remover o arquivo temporário após o treinamento
+                    # Remove the temporary file after training
                     if os.path.exists(data_path):
                         os.remove(data_path)
     
-    # Abas para Chat e Previsão
-    tab1, tab2 = st.tabs(["🤖 Chatbot", "🔮 Prever Próxima Palavra"])
+    # Tabs for Chat and Prediction
+    tab1, tab2 = st.tabs(["🤖 Chatbot", "🔮 Predict Next Word"])
     
     with tab1:
-        st.header("Chat com o Modelo GPT-2")
+        st.header("Chat with GPT-2 Model")
         model_path = output_dir if os.path.exists(output_dir) else config['training']['output_dir']
         
-        # Verificar se o modelo está completo antes de prosseguir
+        # Check if the model is complete before proceeding
         model_files = ['config.json', 'vocab.json', 'merges.txt', 'tokenizer.json']
         if not all(os.path.exists(os.path.join(model_path, f)) for f in model_files):
-            st.error(f"O modelo no diretório '{model_path}' não está completo ou não foi treinado.")
-            st.stop()  # Parar a execução da aba se o modelo não estiver disponível
+            st.error(f"Model in directory '{model_path}' is incomplete or not trained.")
+            st.stop()  # Stop execution of the tab if the model is not available
         else:
-            # Carregar modelo e tokenizador com cache
+            # Load model and tokenizer with cache
             model, tokenizer = get_model_and_tokenizer(model_path)
             if model is None or tokenizer is None:
-                st.error("Falha ao carregar o modelo ou tokenizador.")
+                st.error("Failed to load model or tokenizer.")
                 st.stop()
             else:
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 model.to(device)
     
-                # Histórico de conversas armazenado no Session State
+                # Conversation history stored in Session State
                 if 'chat_history' not in st.session_state:
                     st.session_state['chat_history'] = []
     
-                # Exibir histórico de mensagens
+                # Display message history
                 for chat in st.session_state['chat_history']:
                     if chat['role'] == 'user':
                         st.markdown(f"""
@@ -486,7 +484,7 @@ def run_interface():
                         </div>
                         """, unsafe_allow_html=True)
     
-                # Parâmetros com tooltips
+                # Parameters with tooltips
                 col1, col2, col3, col4 = st.columns([1, 1, 1, 0.2])
                 with col1:
                     temperature = st.slider("Temperature", 0.1, 1.5, config['chatbot']['temperature'], 0.1)
@@ -497,47 +495,47 @@ def run_interface():
                 with col4:
                     st.markdown("""
                     <div class="tooltip">?
-                        <span class="tooltiptext">Controla a diversidade da geração. Valores mais altos resultam em respostas mais variadas.</span>
+                        <span class="tooltiptext">Controls the diversity of text generation. Higher values result in more varied responses.</span>
                     </div>
                     """, unsafe_allow_html=True)
     
                 with col1:
                     penalty = st.slider("Repetition Penalty", 1.0, 2.0, config['chatbot']['penalty'], 0.1)
                 with col2:
-                    debug_mode = st.checkbox("Modo de Depuração", value=config['chatbot']['debug_mode'])
+                    debug_mode = st.checkbox("Debug Mode", value=config['chatbot']['debug_mode'])
                 with col3:
-                    language = st.selectbox("Idioma", ["Português", "Inglês", "Espanhol"], index=0)
+                    language = st.selectbox("Language", ["Portuguese", "English", "Spanish"], index=0)
                 with col4:
-                    pass  # Espaço para alinhamento
+                    pass  # Space for alignment
     
-                # Entrada do usuário
-                user_input = st.text_input("Você:", key="chat_input")
+                # User input
+                user_input = st.text_input("You:", key="chat_input")
     
-                # Botão desabilitado quando o campo está vazio
-                send_button = st.button("Enviar", disabled=not user_input.strip())
+                # Button disabled when the field is empty
+                send_button = st.button("Send", disabled=not user_input.strip())
     
-                # Botão para limpar o histórico da conversa
-                clear_button = st.button("Limpar Conversa")
+                # Button to clear the conversation history
+                clear_button = st.button("Clear Conversation")
     
                 if clear_button:
                     st.session_state['chat_history'] = []
-                    # Não usar st.experimental_rerun para evitar loops
+                    # Do not use st.experimental_rerun to avoid loops
                     st.experimental_rerun()
     
                 if send_button:
                     if not user_input.strip():
-                        st.warning("Por favor, insira um texto para conversar.")
+                        st.warning("Please enter text to chat.")
                     else:
                         try:
-                            with st.spinner("O bot está pensando..."):
+                            with st.spinner("The bot is thinking..."):
                                 normalized_input = normalize_text(user_input)
     
-                                # Análise de sentimentos
+                                # Sentiment analysis
                                 sentiment = analyze_sentiment(normalized_input, device=0 if device.type == 'cuda' else -1)
     
-                                # Ajuste da resposta com base no sentimento
+                                # Adjust response based on sentiment
                                 if sentiment == "NEGATIVE":
-                                    prompt = f"{normalized_input}\nResponda de forma reconfortante."
+                                    prompt = f"{normalized_input}\nRespond in a comforting manner."
                                 else:
                                     prompt = normalized_input
     
@@ -551,7 +549,7 @@ def run_interface():
                                     debug_mode=debug_mode
                                 )
     
-                                # Adicionar ao histórico
+                                # Add to history
                                 st.session_state['chat_history'].append({
                                     'role': 'user',
                                     'content': normalized_input,
@@ -563,7 +561,7 @@ def run_interface():
                                     'timestamp': datetime.now().strftime("%H:%M:%S")
                                 })
     
-                                # Feedback para aprendizado contínuo
+                                # Continuous learning feedback
                                 if 'continuous_learning' not in st.session_state:
                                     st.session_state['continuous_learning'] = []
                                 st.session_state['continuous_learning'].append({
@@ -571,53 +569,53 @@ def run_interface():
                                     'response': response
                                 })
     
-                                # Mostrar debug info se ativado
+                                # Show debug info if enabled
                                 if debug_info:
                                     st.write("**Debug Info:**")
                                     st.json(debug_info)
     
                         except Exception as e:
-                            st.error(f"Ocorreu um erro ao gerar a resposta: {e}")
+                            st.error(f"An error occurred while generating the response: {e}")
 
     with tab2:
-        st.header("Prever Próxima Palavra")
+        st.header("Predict Next Word")
         model_path = output_dir if os.path.exists(output_dir) else config['training']['output_dir']
         
-        # Verificar se o modelo está completo antes de prosseguir
+        # Check if the model is complete before proceeding
         model_files = ['config.json', 'vocab.json', 'merges.txt', 'tokenizer.json']
         if not all(os.path.exists(os.path.join(model_path, f)) for f in model_files):
-            st.error(f"O modelo no diretório '{model_path}' não está completo ou não foi treinado.")
+            st.error(f"Model in directory '{model_path}' is incomplete or not trained.")
             st.stop()
         else:
-            # Carregar modelo e tokenizador com cache
+            # Load model and tokenizer with cache
             model, tokenizer = get_model_and_tokenizer(model_path)
             if model is None or tokenizer is None:
-                st.error("Falha ao carregar o modelo ou tokenizador.")
+                st.error("Failed to load model or tokenizer.")
                 st.stop()
             else:
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 model.to(device)
     
-                # Entrada do usuário
-                input_text = st.text_input("Insira o texto para prever a próxima palavra:", key="predict_input")
+                # User input
+                input_text = st.text_input("Enter text to predict the next word:", key="predict_input")
     
-                # Botão para prever
-                predict_button = st.button("Prever Próxima Palavra", disabled=not input_text.strip())
+                # Button to predict
+                predict_button = st.button("Predict Next Word", disabled=not input_text.strip())
     
                 if predict_button:
                     if not input_text.strip():
-                        st.warning("Por favor, insira um texto para prever a próxima palavra.")
+                        st.warning("Please enter text to predict the next word.")
                     else:
                         try:
-                            with st.spinner("Prevendo a próxima palavra..."):
+                            with st.spinner("Predicting the next word..."):
                                 next_word = predict_next_word(
                                     input_text,
                                     model_path=model_path,
                                     device=device
                                 )
-                                st.success(f"Próxima palavra prevista: **{next_word}**")
+                                st.success(f"Predicted next word: **{next_word}**")
                         except Exception as e:
-                            st.error(f"Ocorreu um erro ao prever a próxima palavra: {e}")
+                            st.error(f"An error occurred while predicting the next word: {e}")
 
-# Executar a interface
+# Run the interface
 run_interface()
